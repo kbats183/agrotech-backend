@@ -18,6 +18,7 @@ func professions(router chi.Router) {
 	router.Route("/favourite/{userAuth}", func(router chi.Router) {
 		router.Use(UserContext)
 		router.Get("/", getAllProfessionsWithRating)
+		router.Get("/only", getAllProfessionsFavourite)
 	})
 	router.Route("/{professionID}", func(router chi.Router) {
 		router.Use(ProfessionContext)
@@ -79,6 +80,18 @@ func getProfession(w http.ResponseWriter, r *http.Request) {
 func getAllProfessionsWithRating(w http.ResponseWriter, r *http.Request) {
 	userAuth := r.Context().Value(userAuthKey).(string)
 	professions, err := dbInstance.GetAllProfessionWithRating(models.UserAuth(userAuth))
+	if err != nil {
+		render.Render(w, r, ServerErrorRenderer(err))
+		return
+	}
+	if err := render.Render(w, r, &professions); err != nil {
+		render.Render(w, r, ErrorRenderer(err))
+	}
+}
+
+func getAllProfessionsFavourite(w http.ResponseWriter, r *http.Request) {
+	userAuth := r.Context().Value(userAuthKey).(string)
+	professions, err := dbInstance.GetAllFavouriteProfession(models.UserAuth(userAuth))
 	if err != nil {
 		render.Render(w, r, ServerErrorRenderer(err))
 		return

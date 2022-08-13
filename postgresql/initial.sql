@@ -1,7 +1,12 @@
+DROP TABLE IF EXISTS favourite_study_programs;
 DROP TABLE IF EXISTS test_to_profession;
 DROP TABLE IF EXISTS test_answers;
 DROP TABLE IF EXISTS test_questions;
 DROP TABLE IF EXISTS favourite_professions;
+DROP TABLE IF EXISTS specializations_professions;
+DROP TABLE IF EXISTS specialization;
+DROP TABLE IF EXISTS university;
+
 DROP TABLE IF EXISTS professions;
 DROP TABLE IF EXISTS users;
 
@@ -62,3 +67,46 @@ CREATE TABLE test_to_profession
     correlation   REAL    NOT NULL,
     UNIQUE (question_id, profession_id)
 );
+
+CREATE TABLE specialization
+(
+    id          SERIAL PRIMARY KEY,
+    name        VARCHAR NOT NULL,
+    description VARCHAR NOT NULL,
+    disciplines VARCHAR NOT NULL
+);
+
+CREATE TABLE specializations_professions
+(
+    id                SERIAL PRIMARY KEY,
+    specialization_id INTEGER NOT NULL REFERENCES specialization (id),
+    professions_id    INTEGER NOT NULL REFERENCES professions (id)
+);
+
+CREATE TABLE university
+(
+    id      SERIAL PRIMARY KEY,
+    name    VARCHAR NOT NULL,
+    address VARCHAR NOT NULL,
+    image   VARCHAR NOT NULL
+);
+
+CREATE TABLE study_programs
+(
+    id                SERIAL PRIMARY KEY,
+    specialization_id INTEGER NOT NULL REFERENCES specialization (id),
+    university_id     INTEGER NOT NULL REFERENCES university (id),
+    exams             JSONB   NOT NULL,
+    score_budget      INTEGER NOT NULL,
+    score_contract    INTEGER NOT NULL,
+    contract_amount   INTEGER NOT NULL
+);
+
+CREATE TABLE favourite_study_programs
+(
+    id                SERIAL PRIMARY KEY,
+    study_programs_id INTEGER NOT NULL REFERENCES study_programs (id),
+    user_id           INTEGER NOT NULL REFERENCES users (id),
+    UNIQUE (study_programs_id, user_id)
+);
+

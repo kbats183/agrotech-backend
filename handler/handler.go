@@ -30,6 +30,7 @@ func NewHandler(db *db.Database) http.Handler {
 	router.Route("/users", users)
 	router.Route("/professions", professions)
 	router.Route("/tests", tests)
+	router.Route("/study_program", studyProgram)
 	return router
 }
 func methodNotAllowedHandler(w http.ResponseWriter, r *http.Request) {

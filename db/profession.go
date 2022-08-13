@@ -5,14 +5,14 @@ import (
 	"githab.com/kbats183/argotech/backend/models"
 )
 
-func (db Database) GetAllProfession() (models.ProfessionList, error) {
-	list := make(models.ProfessionList, 0)
-	rows, err := db.Conn.Query("SELECT * FROM professions ORDER BY id")
+func (db Database) GetAllProfession() (models.ProfessionShortInfoList, error) {
+	list := make(models.ProfessionShortInfoList, 0)
+	rows, err := db.Conn.Query("SELECT id, name, description, short_description FROM professions ORDER BY id")
 	if err != nil {
 		return list, err
 	}
 	for rows.Next() {
-		var profession models.Profession
+		var profession models.ProfessionShortInfo
 		err := profession.ScanRow(rows)
 		if err != nil {
 			return list, err
@@ -34,14 +34,35 @@ func (db Database) GetProfessionByID(id int) (models.Profession, error) {
 	}
 }
 
-func (db Database) GetAllProfessionWithRating(userAuth models.UserAuth) (models.ProfessionWithRatingList, error) {
-	list := make(models.ProfessionWithRatingList, 0)
-	rows, err := db.Conn.Query("SELECT p.*, fp.id IS NOT NULL as \"is_favourite\" FROM professions p LEFT JOIN favourite_professions fp on p.id = fp.profession_id LEFT JOIN users u on u.id = fp.user_id WHERE u.login = $1 OR u.login is NULL ORDER BY p.id;", userAuth)
+func (db Database) GetAllProfessionWithRating(userAuth models.UserAuth) (models.ProfessionShortInfoWithRatingList, error) {
+	list := make(models.ProfessionShortInfoWithRatingList, 0)
+	query := `WITH favourites AS (
+    SELECT fp.profession_id FROM favourite_professions fp INNER JOIN users u on u.id = fp.user_id WHERE u.login = $1
+)
+SELECT p.id, p.name, p.description, p.short_description, f.profession_id IS NOT NULL as "is_favourite" FROM professions p LEFT JOIN favourites f on p.id = f.profession_id ORDER BY p.id;`
+	rows, err := db.Conn.Query(query, userAuth)
 	if err != nil {
 		return list, err
 	}
 	for rows.Next() {
-		var profession models.ProfessionWithRating
+		var profession models.ProfessionShortInfoWithRating
+		err := profession.ScanRow(rows)
+		if err != nil {
+			return list, err
+		}
+		list = append(list, profession)
+	}
+	return list, nil
+}
+
+func (db Database) GetAllFavouriteProfession(userAuth models.UserAuth) (models.ProfessionShortInfoWithRatingList, error) {
+	list := make(models.ProfessionShortInfoWithRatingList, 0)
+	rows, err := db.Conn.Query("SELECT p.id, p.name, p.description, p.short_description, true as \"is_favourite\" FROM professions p INNER JOIN favourite_professions fp on p.id = fp.profession_id LEFT JOIN users u on u.id = fp.user_id WHERE u.login = $1 ORDER BY p.id;", userAuth)
+	if err != nil {
+		return list, err
+	}
+	for rows.Next() {
+		var profession models.ProfessionShortInfoWithRating
 		err := profession.ScanRow(rows)
 		if err != nil {
 			return list, err
