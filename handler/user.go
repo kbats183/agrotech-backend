@@ -137,3 +137,16 @@ func updateUserProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func getUserByAuthInContext(w http.ResponseWriter, r *http.Request) (models.User, error) {
+	userAuth := r.Context().Value(userAuthKey).(string)
+	user, err := dbInstance.GetUserByAuth(userAuth)
+	if err != nil {
+		if err == db.ErrNoMatch {
+			render.Render(w, r, ErrNotFound)
+		} else {
+			render.Render(w, r, ErrorRenderer(err))
+		}
+	}
+	return user, err
+}

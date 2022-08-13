@@ -107,14 +107,8 @@ func getProfessionWithRating(w http.ResponseWriter, r *http.Request) {
 }
 
 func addProfessionFavourite(w http.ResponseWriter, r *http.Request) {
-	userAuth := r.Context().Value(userAuthKey).(string)
-	user, err := dbInstance.GetUserByAuth(userAuth)
+	user, err := getUserByAuthInContext(w, r)
 	if err != nil {
-		if err == db.ErrNoMatch {
-			render.Render(w, r, ErrNotFound)
-		} else {
-			render.Render(w, r, ErrorRenderer(err))
-		}
 		return
 	}
 
@@ -128,14 +122,8 @@ func addProfessionFavourite(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteProfessionFavourite(w http.ResponseWriter, r *http.Request) {
-	userAuth := r.Context().Value(userAuthKey).(string)
-	user, err := dbInstance.GetUserByAuth(userAuth)
+	user, err := getUserByAuthInContext(w, r)
 	if err != nil {
-		if err == db.ErrNoMatch {
-			render.Render(w, r, ErrNotFound)
-		} else {
-			render.Render(w, r, ErrorRenderer(err))
-		}
 		return
 	}
 
