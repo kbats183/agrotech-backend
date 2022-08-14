@@ -139,7 +139,6 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT DO NOTHING ;`
 	for _, vacancy := range vacancies {
 		var region = findRegion(vacancy.Area.Id, areas)
 		if region == nil {
-			fmt.Println("no area", vacancy.Area)
 			region = &vacancy.Area.Id
 		}
 		_, err := database.Conn.Exec(q,
@@ -163,8 +162,6 @@ func main() {
 	//if err != nil {
 	//	panic(err)
 	//}
-	//reg := findRegion("113", areas)
-	//fmt.Println(*reg)
 	saveRegionsToFile()
 	//putVacancyIntoDB()
 }

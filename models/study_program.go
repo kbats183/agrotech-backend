@@ -49,9 +49,9 @@ type StudyProgramsDetails struct {
 	UniversityAddress         string `json:"university_address"`
 	SpecialisationDescription string `json:"specialisation_description"`
 	SpecialisationDisciplines string `json:"specialisation_disciplines"`
-	ScoreBudget               int    `json:"score_budget"`
-	ScoreContract             int    `json:"score_contract"`
-	ContractAmount            int    `json:"contract_amount"`
+	ScoreBudget               *int   `json:"score_budget"`
+	ScoreContract             *int   `json:"score_contract"`
+	ContractAmount            *int   `json:"contract_amount"`
 }
 
 func (s *StudyProgramsDetails) ScanRow(row ScannedRow) error {

@@ -79,10 +79,9 @@ func (db Database) GetProfessionByTest(userID models.UserID, testID int) (models
                          INNER JOIN test_questions q on q.id = a.question_id
                 WHERE a.user_id = $1
                   AND q.test_id = $2)
-SELECT p.*, fp.id IS NOT NULL as "is_favourite"
+SELECT p.*, exists(SELECT 1 FROM favourite_professions fp WHERE p.id = fp.profession_id AND fp.user_id = $1) as "is_favourite"
 FROM professions p
          INNER JOIN scores sc on p.id = sc.profession_id
-         LEFT JOIN favourite_professions fp on p.id = fp.profession_id
 GROUP BY p.id, is_favourite
 ORDER BY sum(sc.score) DESC
 LIMIT 5;`

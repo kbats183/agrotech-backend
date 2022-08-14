@@ -36,10 +36,18 @@ func (db Database) GetProfessionByID(id int) (models.Profession, error) {
 
 func (db Database) GetAllProfessionWithRating(userAuth models.UserAuth) (models.ProfessionShortInfoWithRatingList, error) {
 	list := make(models.ProfessionShortInfoWithRatingList, 0)
-	query := `WITH favourites AS (
-    SELECT fp.profession_id FROM favourite_professions fp INNER JOIN users u on u.id = fp.user_id WHERE u.login = $1
-)
-SELECT p.id, p.name, p.description, p.short_description, p.image, f.profession_id IS NOT NULL as "is_favourite" FROM professions p LEFT JOIN favourites f on p.id = f.profession_id ORDER BY p.id;`
+	query := `SELECT p.id,
+       p.name,
+       p.description,
+       p.short_description,
+       p.image,
+       EXISTS(SELECT fp.profession_id
+              FROM favourite_professions fp
+                       INNER JOIN users u on u.id = fp.user_id
+              WHERE u.login = $1
+                AND fp.profession_id = p.id) as "is_favourite"
+FROM professions p
+ORDER BY p.id;`
 	rows, err := db.Conn.Query(query, userAuth)
 	if err != nil {
 		return list, err
