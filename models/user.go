@@ -74,3 +74,43 @@ type UserList []User
 func (UserList) Render(http.ResponseWriter, *http.Request) error {
 	return nil
 }
+
+type UserCV struct {
+	UserData
+	DateOfBirth         *string `json:"date_of_birth"`
+	Address             *string `json:"address"`
+	ContactData         *string `json:"contact_data"`
+	SchoolBeginYear     *int    `json:"school_begin_year"`
+	SchoolEndYear       *int    `json:"school_end_year"`
+	UniversityBeginYear *int    `json:"university_begin_year"`
+	UniversityEndYear   *int    `json:"university_end_year"`
+	Skills              *string `json:"skills"`
+}
+
+func (d *UserCV) ScanRow(row ScannedRow) error {
+	return row.Scan(
+		&d.Login,
+		&d.LastName,
+		&d.FirstName,
+		&d.Patronymic,
+		&d.DateOfBirth,
+		&d.Address,
+		&d.ContactData,
+		&d.SchoolName,
+		&d.SchoolBeginYear,
+		&d.SchoolEndYear,
+		&d.UniversityName,
+		&d.UniversityStudyProgram,
+		&d.UniversityBeginYear,
+		&d.UniversityEndYear,
+		&d.Skills,
+	)
+}
+
+func (u *UserCV) Bind(*http.Request) error {
+	return nil
+}
+
+func (*UserCV) Render(http.ResponseWriter, *http.Request) error {
+	return nil
+}

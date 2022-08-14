@@ -44,7 +44,7 @@ func (db Database) GetAllProgramsForFavouriteProfessions(userID models.UserID) (
        spec.name,
        university_id,
        u.name,
-       'https://avatars.mds.yandex.net/get-altay/1335362/2a000001649009b50727c93104e9cddcb0cf/XXL',
+       u.image,
        exams,
        exists(SELECT fsp.id FROM favourite_study_programs fsp WHERE prog.id = fsp.study_programs_id AND fsp.user_id = $1) as "is_favourite"
 FROM study_programs prog
@@ -53,7 +53,7 @@ FROM study_programs prog
          INNER JOIN university u on u.id = prog.university_id
          INNER JOIN favourite_professions fp on sp.professions_id = fp.profession_id
 WHERE fp.user_id = $1
-GROUP BY prog.id, spec.id, university_id, u.name, exams
+GROUP BY prog.id, spec.id, university_id, u.name, u.image, exams
 ORDER BY count(*) DESC;`
 	rows, err := db.Conn.Query(query, userID)
 	if err != nil {

@@ -25,6 +25,14 @@ CREATE TABLE users
     university_name          VARCHAR,
     university_study_program VARCHAR,
     university_profession    INTEGER,
+    date_of_birth            VARCHAR,
+    address                  VARCHAR,
+    contact_data             VARCHAR,
+    school_begin_year        INTEGER,
+    school_end_year          INTEGER,
+    university_begin_year    INTEGER,
+    university_end_year      INTEGER,
+    skills                   VARCHAR,
     created_at               TIMESTAMP NOT NULL DEFAULT now(),
     UNIQUE (login)
 );
@@ -129,4 +137,4 @@ CREATE TABLE vacancies
     responsibility VARCHAR NOT NULL,
     area           INT     NOT NULL,
     UNIQUE (hh_id)
-)
+);
