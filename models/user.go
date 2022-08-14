@@ -17,12 +17,16 @@ func (u *UserAuth) Bind(*http.Request) error {
 }
 
 type UserProfile struct {
-	LastName    string  `json:"last_name"`
-	FirstName   string  `json:"first_name"`
-	Patronymic  string  `json:"patronymic"`
-	Step        *int    `json:"step"`
-	SchoolClass *int    `json:"school_class"`
-	SchoolName  *string `json:"school_name"`
+	LastName               string  `json:"last_name"`
+	FirstName              string  `json:"first_name"`
+	Patronymic             string  `json:"patronymic"`
+	Region                 *int    `json:"region"`
+	Step                   *int    `json:"step"`
+	SchoolClass            *int    `json:"school_class"`
+	SchoolName             *string `json:"school_name"`
+	UniversityName         *string `json:"university_name"`
+	UniversityStudyProgram *string `json:"university_study_program"`
+	UniversityProfession   *int    `json:"university_profession"`
 }
 
 func (*UserProfile) Bind(*http.Request) error {
@@ -51,9 +55,13 @@ func (user *User) ScanRow(row ScannedRow) error {
 		&user.LastName,
 		&user.FirstName,
 		&user.Patronymic,
+		&user.Region,
 		&user.Step,
 		&user.SchoolClass,
 		&user.SchoolName,
+		&user.UniversityName,
+		&user.UniversityStudyProgram,
+		&user.UniversityProfession,
 		&user.CreatedAt)
 }
 

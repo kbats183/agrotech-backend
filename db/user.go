@@ -68,16 +68,21 @@ func (db Database) UpdateUser(userID int, userData models.UserData) (models.User
 }
 func (db Database) UpdateUserProfile(auth string, userData models.UserProfile) (models.User, error) {
 	var user models.User
-	query := `UPDATE users SET last_name=$2, first_name=$3, patronymic=$4, step=$5, school_class=$6, school_name=$7 WHERE login=$1 RETURNING *;`
+	query := `UPDATE users SET last_name=$2, first_name=$3, patronymic=$4, region=$5, step=$6, school_class=$7, school_name=$8, university_name=$9, university_study_program=$10, university_profession=$11 WHERE login=$1 RETURNING *;`
 	row := db.Conn.QueryRow(
 		query,
 		auth,
 		userData.LastName,
 		userData.FirstName,
 		userData.Patronymic,
+		userData.Region,
 		userData.Step,
 		userData.SchoolClass,
-		userData.SchoolName)
+		userData.SchoolName,
+		userData.UniversityName,
+		userData.UniversityStudyProgram,
+		userData.UniversityProfession,
+	)
 	err := user.ScanRow(row)
 	if err != nil {
 		if err == sql.ErrNoRows {

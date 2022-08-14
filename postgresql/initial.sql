@@ -7,20 +7,25 @@ DROP TABLE IF EXISTS specializations_professions;
 DROP TABLE IF EXISTS specialization;
 DROP TABLE IF EXISTS university;
 
+DROP TABLE IF EXISTS vacancies;
 DROP TABLE IF EXISTS professions;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users
 (
-    id           SERIAL PRIMARY KEY,
-    login        VARCHAR   NOT NULL,
-    last_name    VARCHAR   NOT NULL,
-    first_name   VARCHAR   NOT NULL,
-    patronymic   VARCHAR   NOT NULL,
-    step         INTEGER   NOT NULL,
-    school_class INTEGER,
-    school_name  VARCHAR,
-    created_at   TIMESTAMP NOT NULL DEFAULT now(),
+    id                       SERIAL PRIMARY KEY,
+    login                    VARCHAR   NOT NULL,
+    last_name                VARCHAR   NOT NULL,
+    first_name               VARCHAR   NOT NULL,
+    patronymic               VARCHAR   NOT NULL,
+    region                   INTEGER,
+    step                     INTEGER,
+    school_class             INTEGER,
+    school_name              VARCHAR,
+    university_name          VARCHAR,
+    university_study_program VARCHAR,
+    university_profession    INTEGER,
+    created_at               TIMESTAMP NOT NULL DEFAULT now(),
     UNIQUE (login)
 );
 
@@ -112,3 +117,16 @@ CREATE TABLE favourite_study_programs
     UNIQUE (study_programs_id, user_id)
 );
 
+CREATE TABLE vacancies
+(
+    id             SERIAL PRIMARY KEY,
+    hh_id          INTEGER,
+    name           VARCHAR NOT NULL,
+    url            VARCHAR NOT NULL,
+    employer       VARCHAR NOT NULL,
+    employer_url   VARCHAR NOT NULL,
+    employer_image VARCHAR NOT NULL,
+    responsibility VARCHAR NOT NULL,
+    area           INT     NOT NULL,
+    UNIQUE (hh_id)
+)
