@@ -23,6 +23,10 @@ func studyProgram(router chi.Router) {
 	router.Route("/profession/{professionID}", func(router chi.Router) {
 		router.Use(ProfessionContext)
 		router.Get("/", getStudyProgramsByProfessionID)
+		router.Route("/favourite/{userAuth}", func(router chi.Router) {
+			router.Use(UserContext)
+			router.Get("/", getStudyProgramsByProfessionIDWithRating)
+		})
 	})
 	router.Route("/favourite/{userAuth}", func(router chi.Router) {
 		router.Use(UserContext)
@@ -34,12 +38,12 @@ func StudyProgramContext(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		programIDStr := chi.URLParam(r, "studyProgramID")
 		if programIDStr == "" {
-			render.Render(w, r, ErrorRenderer(fmt.Errorf("program ID is required")))
+			_ = render.Render(w, r, ErrorRenderer(fmt.Errorf("program ID is required")))
 			return
 		}
 		programIDInt, err := strconv.Atoi(programIDStr)
 		if err != nil {
-			render.Render(w, r, ErrorRenderer(fmt.Errorf("program ID mast be number")))
+			_ = render.Render(w, r, ErrorRenderer(fmt.Errorf("program ID mast be number")))
 			return
 		}
 		ctx := context.WithValue(r.Context(), studyProgramIDKey, programIDInt)
@@ -49,17 +53,38 @@ func StudyProgramContext(next http.Handler) http.Handler {
 
 func getStudyProgramsByProfessionID(w http.ResponseWriter, r *http.Request) {
 	professionID := r.Context().Value(professionID).(int)
-	programs, err := dbInstance.GetAllProgramsByProfessionID(professionID)
+	programs, err := dbInstance.GetAllProgramsByProfessionID(professionID, 0)
 	if err != nil {
 		if err == db.ErrNoMatch {
-			render.Render(w, r, ErrNotFound)
+			_ = render.Render(w, r, ErrNotFound)
 		} else {
-			render.Render(w, r, ErrorRenderer(err))
+			_ = render.Render(w, r, ErrorRenderer(err))
 		}
 		return
 	}
 	if err := render.Render(w, r, &programs); err != nil {
-		render.Render(w, r, ServerErrorRenderer(err))
+		_ = render.Render(w, r, ServerErrorRenderer(err))
+		return
+	}
+}
+
+func getStudyProgramsByProfessionIDWithRating(w http.ResponseWriter, r *http.Request) {
+	user, err := getUserByAuthInContext(w, r)
+	if err != nil {
+		return
+	}
+	professionID := r.Context().Value(professionID).(int)
+	programs, err := dbInstance.GetAllProgramsByProfessionID(professionID, user.ID)
+	if err != nil {
+		if err == db.ErrNoMatch {
+			_ = render.Render(w, r, ErrNotFound)
+		} else {
+			_ = render.Render(w, r, ErrorRenderer(err))
+		}
+		return
+	}
+	if err := render.Render(w, r, &programs); err != nil {
+		_ = render.Render(w, r, ServerErrorRenderer(err))
 		return
 	}
 }
@@ -72,14 +97,14 @@ func getStudyProgramsForFavouriteProfessions(w http.ResponseWriter, r *http.Requ
 	programs, err := dbInstance.GetAllProgramsForFavouriteProfessions(user.ID)
 	if err != nil {
 		if err == db.ErrNoMatch {
-			render.Render(w, r, ErrNotFound)
+			_ = render.Render(w, r, ErrNotFound)
 		} else {
-			render.Render(w, r, ErrorRenderer(err))
+			_ = render.Render(w, r, ErrorRenderer(err))
 		}
 		return
 	}
 	if err := render.Render(w, r, &programs); err != nil {
-		render.Render(w, r, ServerErrorRenderer(err))
+		_ = render.Render(w, r, ServerErrorRenderer(err))
 		return
 	}
 }
@@ -93,14 +118,14 @@ func getStudyProgramByID(w http.ResponseWriter, r *http.Request) {
 	program, err := dbInstance.GetStudyProgramByID(programID, user.ID)
 	if err != nil {
 		if err == db.ErrNoMatch {
-			render.Render(w, r, ErrNotFound)
+			_ = render.Render(w, r, ErrNotFound)
 		} else {
-			render.Render(w, r, ErrorRenderer(err))
+			_ = render.Render(w, r, ErrorRenderer(err))
 		}
 		return
 	}
 	if err := render.Render(w, r, &program); err != nil {
-		render.Render(w, r, ServerErrorRenderer(err))
+		_ = render.Render(w, r, ServerErrorRenderer(err))
 		return
 	}
 }
@@ -114,7 +139,7 @@ func addStudyProgramFavourite(w http.ResponseWriter, r *http.Request) {
 	programID := r.Context().Value(studyProgramIDKey).(int)
 	err = dbInstance.AddStudyProgramFavourite(user.ID, programID)
 	if err != nil {
-		render.Render(w, r, ServerErrorRenderer(err))
+		_ = render.Render(w, r, ServerErrorRenderer(err))
 	} else {
 		render.Status(r, http.StatusOK)
 	}
@@ -129,7 +154,7 @@ func deleteStudyProgramFavourite(w http.ResponseWriter, r *http.Request) {
 	programID := r.Context().Value(studyProgramIDKey).(int)
 	err = dbInstance.DeleteStudyProgramFavourite(user.ID, programID)
 	if err != nil {
-		render.Render(w, r, ServerErrorRenderer(err))
+		_ = render.Render(w, r, ServerErrorRenderer(err))
 	} else {
 		render.Status(r, http.StatusOK)
 	}

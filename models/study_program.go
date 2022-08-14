@@ -12,39 +12,19 @@ func (*ExamsList) Bind(*http.Request) error {
 }
 
 type StudyProgramsShort struct {
-	ID               int       `json:"id"`
-	SpecialisationID int       `json:"specialisation_id"`
-	UniversityID     int       `json:"university_id"`
-	UniversityName   string    `json:"university_name"`
-	Exams            ExamsList `json:"exams"`
+	ID                 int       `json:"id"`
+	SpecialisationID   int       `json:"specialisation_id"`
+	SpecialisationName string    `json:"specialisation_name"`
+	UniversityID       int       `json:"university_id"`
+	UniversityName     string    `json:"university_name"`
+	Exams              ExamsList `json:"exams"`
+	UniversityImage    string    `json:"university_image"`
+	IsFavourite        bool      `json:"is_favourite"`
 }
 
 func (s *StudyProgramsShort) ScanRow(row ScannedRow) error {
 	var exam []byte
-	err := row.Scan(&s.ID, &s.SpecialisationID, &s.UniversityID, &s.UniversityName, &exam)
-	if err != nil {
-		return err
-	}
-	return json.Unmarshal(exam, &s.Exams)
-}
-
-type StudyProgramsShortList []StudyProgramsShort
-
-func (*StudyProgramsShortList) Render(http.ResponseWriter, *http.Request) error {
-	return nil
-}
-
-type StudyProgramsUniversityAndSpecialisation struct {
-	StudyProgramsShort
-	UniversityImage    string `json:"university_image"`
-	SpecialisationName string `json:"specialisation_name"`
-	IsFavourite        bool   `json:"is_favourite"`
-}
-
-func (s *StudyProgramsUniversityAndSpecialisation) ScanRow(row ScannedRow) error {
-	var exam []byte
-	err := row.Scan(
-		&s.ID,
+	err := row.Scan(&s.ID,
 		&s.SpecialisationID,
 		&s.SpecialisationName,
 		&s.UniversityID,
@@ -58,18 +38,14 @@ func (s *StudyProgramsUniversityAndSpecialisation) ScanRow(row ScannedRow) error
 	return json.Unmarshal(exam, &s.Exams)
 }
 
-func (*StudyProgramsUniversityAndSpecialisation) Render(http.ResponseWriter, *http.Request) error {
-	return nil
-}
+type StudyProgramsShortList []StudyProgramsShort
 
-type StudyProgramsUniversityAndSpecialisationList []StudyProgramsUniversityAndSpecialisation
-
-func (*StudyProgramsUniversityAndSpecialisationList) Render(http.ResponseWriter, *http.Request) error {
+func (*StudyProgramsShortList) Render(http.ResponseWriter, *http.Request) error {
 	return nil
 }
 
 type StudyProgramsDetails struct {
-	StudyProgramsUniversityAndSpecialisation
+	StudyProgramsShort
 	UniversityAddress         string `json:"university_address"`
 	SpecialisationDescription string `json:"specialisation_description"`
 	SpecialisationDisciplines string `json:"specialisation_disciplines"`
@@ -102,5 +78,11 @@ func (s *StudyProgramsDetails) ScanRow(row ScannedRow) error {
 }
 
 func (*StudyProgramsDetails) Render(http.ResponseWriter, *http.Request) error {
+	return nil
+}
+
+type StudyProgramsDetailsList []StudyProgramsDetails
+
+func (*StudyProgramsDetailsList) Render(http.ResponseWriter, *http.Request) error {
 	return nil
 }

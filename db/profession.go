@@ -7,7 +7,7 @@ import (
 
 func (db Database) GetAllProfession() (models.ProfessionShortInfoList, error) {
 	list := make(models.ProfessionShortInfoList, 0)
-	rows, err := db.Conn.Query("SELECT id, name, description, short_description FROM professions ORDER BY id")
+	rows, err := db.Conn.Query("SELECT id, name, description, short_description, image FROM professions ORDER BY id")
 	if err != nil {
 		return list, err
 	}
@@ -39,7 +39,7 @@ func (db Database) GetAllProfessionWithRating(userAuth models.UserAuth) (models.
 	query := `WITH favourites AS (
     SELECT fp.profession_id FROM favourite_professions fp INNER JOIN users u on u.id = fp.user_id WHERE u.login = $1
 )
-SELECT p.id, p.name, p.description, p.short_description, f.profession_id IS NOT NULL as "is_favourite" FROM professions p LEFT JOIN favourites f on p.id = f.profession_id ORDER BY p.id;`
+SELECT p.id, p.name, p.description, p.short_description, p.image, f.profession_id IS NOT NULL as "is_favourite" FROM professions p LEFT JOIN favourites f on p.id = f.profession_id ORDER BY p.id;`
 	rows, err := db.Conn.Query(query, userAuth)
 	if err != nil {
 		return list, err
@@ -57,7 +57,7 @@ SELECT p.id, p.name, p.description, p.short_description, f.profession_id IS NOT 
 
 func (db Database) GetAllFavouriteProfession(userAuth models.UserAuth) (models.ProfessionShortInfoWithRatingList, error) {
 	list := make(models.ProfessionShortInfoWithRatingList, 0)
-	rows, err := db.Conn.Query("SELECT p.id, p.name, p.description, p.short_description, true as \"is_favourite\" FROM professions p INNER JOIN favourite_professions fp on p.id = fp.profession_id LEFT JOIN users u on u.id = fp.user_id WHERE u.login = $1 ORDER BY p.id;", userAuth)
+	rows, err := db.Conn.Query("SELECT p.id, p.name, p.description, p.short_description, p.image, true as \"is_favourite\" FROM professions p INNER JOIN favourite_professions fp on p.id = fp.profession_id LEFT JOIN users u on u.id = fp.user_id WHERE u.login = $1 ORDER BY p.id;", userAuth)
 	if err != nil {
 		return list, err
 	}
@@ -74,7 +74,7 @@ func (db Database) GetAllFavouriteProfession(userAuth models.UserAuth) (models.P
 
 func (db Database) GetProfessionWithRatingByID(userAuth models.UserAuth, id int) (models.ProfessionWithRating, error) {
 	profession := models.ProfessionWithRating{}
-	query := `SELECT p.*, fp.id IS NOT NULL as "is_favourite" FROM professions p LEFT JOIN favourite_professions fp on p.id = fp.profession_id LEFT JOIN users u on u.id = fp.user_id WHERE (u.login = $1 OR u.login is NULL) AND p.id = $2;`
+	query := `SELECT p.*, exists(SELECT fp.id FROM favourite_professions fp INNER JOIN users u on u.id = fp.user_id WHERE p.id = fp.profession_id AND u.login = $1) as "is_favourite" FROM professions p WHERE p.id = $2;`
 	row := db.Conn.QueryRow(query, userAuth, id)
 	switch err := profession.ScanRow(row); err {
 	case sql.ErrNoRows:

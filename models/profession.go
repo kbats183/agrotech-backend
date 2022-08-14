@@ -9,6 +9,7 @@ type ProfessionShortInfo struct {
 	Name             string  `json:"name"`
 	Description      string  `json:"description"`
 	ShortDescription *string `json:"short_description"`
+	Image            string  `json:"image"`
 }
 
 func (p *ProfessionShortInfo) ScanRow(row ScannedRow) error {
@@ -17,6 +18,7 @@ func (p *ProfessionShortInfo) ScanRow(row ScannedRow) error {
 		&p.Name,
 		&p.Description,
 		&p.ShortDescription,
+		&p.Image,
 	)
 }
 
@@ -37,6 +39,7 @@ func (p *ProfessionShortInfoWithRating) ScanRow(row ScannedRow) error {
 		&p.Name,
 		&p.Description,
 		&p.ShortDescription,
+		&p.Image,
 		&p.IsFavourite,
 	)
 }
@@ -62,7 +65,9 @@ func (p *Profession) ScanRow(row ScannedRow) error {
 		&p.ShortDescription,
 		&p.Tasks,
 		&p.RequiredSkills,
-		&p.Relevance)
+		&p.Relevance,
+		&p.Image,
+	)
 }
 
 func (*Profession) Render(http.ResponseWriter, *http.Request) error {
@@ -89,6 +94,7 @@ func (p *ProfessionWithRating) ScanRow(row ScannedRow) error {
 		&p.Tasks,
 		&p.RequiredSkills,
 		&p.Relevance,
+		&p.Image,
 		&p.IsFavourite,
 	)
 }

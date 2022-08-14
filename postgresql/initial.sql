@@ -97,9 +97,11 @@ CREATE TABLE study_programs
     specialization_id INTEGER NOT NULL REFERENCES specialization (id),
     university_id     INTEGER NOT NULL REFERENCES university (id),
     exams             JSONB   NOT NULL,
-    score_budget      INTEGER NOT NULL,
-    score_contract    INTEGER NOT NULL,
-    contract_amount   INTEGER NOT NULL
+    score_budget      INTEGER,
+    score_contract    INTEGER,
+    contract_amount   INTEGER,
+    grade_budget      REAL,
+    grade_contract    REAL
 );
 
 CREATE TABLE favourite_study_programs
